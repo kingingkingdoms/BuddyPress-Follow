@@ -17,7 +17,7 @@ class BP_Followers_Widget extends WP_Widget {
 		
 		//Set up optional widget args.
 		$widget_ops = array(
-			'classname'   => 'widget_bp_followers_widget widget buddypress',
+			'classname'   => 'widget_bp_followers_widget',
 			'description' => __( "Show a list of followers that the displayed user has.", 'buddypress-followers' )
 		);
 		
