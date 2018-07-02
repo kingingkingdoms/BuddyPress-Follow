@@ -17,7 +17,7 @@ class BP_Following_Widget extends WP_Widget {
 	function __construct() {
 		//Set up optional widget args.
 		$widget_ops = array(
-			'classname'   => 'widget_bp_following_widget widget buddypress',
+			'classname'   => 'widget_bp_following_widget',
 			'description' => __( "Show a list of people and/or accounts based on member type that the displayed user is following.", 'buddypress-followers' ) );
 		
 		//Set up the widget.
