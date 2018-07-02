@@ -8,14 +8,14 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 /**
- * Add a "BuddyPress Total Followers Widget" widget for the displayed user
+ * Add a "BuddyPress Total Followers Count" widget for the displayed user
  *
  * @subpackage Widgets
  */
 class Total_Followers_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array('classname' => 'Total_Followers_Widget', 'description' => 'Display the total number of followers a displayed user has as a widget.' );
-		$this->WP_Widget('Total_Followers_Widget', 'BuddyPress Total Followers', $widget_ops);
+		$this->WP_Widget('Total_Followers_Widget', 'BuddyPress Total Followers Count', $widget_ops);
 	}
 	function widget($args, $instance) {
 		//PART 1: Extracting the arguments + getting the values
