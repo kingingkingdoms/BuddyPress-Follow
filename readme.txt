@@ -1,9 +1,8 @@
 === BuddyPress Follow ===
-Contributors: apeatling, r-a-y
+Contributors: K&L
 Tags: buddypress, following, followers, connections
 Requires at least: WP 3.2 / BP 1.5
-Tested up to: WP 4.4.x / BP 2.5.x
-Stable tag: 1.2.2
+Stable tag: 1.0.0
 
 == Description ==
 
