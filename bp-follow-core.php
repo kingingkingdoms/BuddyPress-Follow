@@ -6,8 +6,8 @@
  * @subpackage Core
  */
 
-// Exit if accessed directly.
-defined( 'ABSPATH' ) || exit;
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Core class for BP Follow.
@@ -22,40 +22,34 @@ defined( 'ABSPATH' ) || exit;
 class BP_Follow_Component extends BP_Component {
 
 	/**
-	 * Revision Date.
-	 *
-	 * @var string The current revision date.
-	 */
-	public $revision_date = '2014-08-07 22:00 UTC';
-
-	/**
 	 * Constructor.
+	 *
+	 * @global obj $bp BuddyPress instance
 	 */
 	public function __construct() {
+		global $bp;
 
-		$bp = $GLOBALS['bp'];
-
-		// setup misc parameters.
+		// setup misc parameters
 		$this->params = array(
-			'adminbar_myaccount_order' => apply_filters( 'bp_follow_following_nav_position', 61 ),
+			'adminbar_myaccount_order' => apply_filters( 'bp_follow_following_nav_position', 61 )
 		);
 
 		// let's start the show!
 		parent::start(
 			'follow',
-			__( 'Follow', 'buddypress-followers' ),
+			__( 'Follow', 'bp-follow' ),
 			constant( 'BP_FOLLOW_DIR' ) . '/_inc',
 			$this->params
 		);
 
-		// include our files.
+		// include our files
 		$this->includes();
 
-		// setup hooks.
+		// setup hooks
 		$this->setup_hooks();
 
-		// register our component as an active component in BP.
-		$bp->active_components[ $this->id ] = '1';
+		// register our component as an active component in BP
+		$bp->active_components[$this->id] = '1';
 	}
 
 	/**
@@ -63,160 +57,260 @@ class BP_Follow_Component extends BP_Component {
 	 */
 	public function includes( $includes = array() ) {
 
-		/**  Backwards-compatibility ******************************************/
+		// Backpat functions for BP < 1.7
+		if ( ! class_exists( 'BP_Theme_Compat' ) )
+			require( $this->path . '/bp-follow-backpat.php' );
 
-		// template stack for BP < 1.7
-		if ( ! class_exists( 'BP_Theme_Compat' ) ) {
-			require( $this->path . '/backpat/template-stack.php' );
-		}
-
-		// activity scope for BP < 2.2
-		if ( ! class_exists( 'BP_Activity_Query' ) ) {
-			require( $this->path . '/backpat/activity-scope.php' );
-		}
-
-		/** Core **************************************************************/
 		require( $this->path . '/bp-follow-classes.php' );
 		require( $this->path . '/bp-follow-functions.php' );
+		require( $this->path . '/bp-follow-screens.php' );
+		require( $this->path . '/bp-follow-actions.php' );
+		require( $this->path . '/bp-follow-hooks.php' );
+		require( $this->path . '/bp-follow-templatetags.php' );
+		require( $this->path . '/bp-follow-notifications.php' );
+		require( $this->path . '/bp-follow-widgets.php' );
 
-		// users module.
-		if ( true === (bool) apply_filters( 'bp_follow_enable_users', true ) ) {
-			require( $this->path . '/users/hooks.php' );
-			require( $this->path . '/users/template.php' );
-			require( $this->path . '/users/notifications.php' );
-			require( $this->path . '/users/widgets.php' );
-
-			// Load AJAX code when an AJAX request is requested.
-			add_action( 'admin_init', function() {
-				if ( defined( 'DOING_AJAX' ) && true === DOING_AJAX && isset( $_POST['action'] ) && false !== strpos( $_POST['action'], 'follow' ) ) {
-					require $this->path . '/users/ajax.php';
-				}
-			} );
-
-			/**
-			 * Conditional includes.
-			 *
-			 * bp_setup_canonical_stack() is a BP 2.1 function and we still support v1.5.
-			 */
-			if ( function_exists( 'bp_setup_canonical_stack' ) ) {
-				$load_hook = 'bp_setup_canonical_stack';
-				$priority  = 20;
-			} else {
-				$load_hook = 'bp_init';
-				$priority  = 5;
-			}
-			add_action( $load_hook, function() {
-				// Actions
-				if ( bp_is_current_component( $this->followers->slug ) || bp_is_action_variable( 'feed', 0 ) ) {
-					require $this->path . '/users/actions.php';
-				}
-
-				// Screens
-				if ( bp_is_current_component( $this->following->slug ) || bp_is_current_component( $this->followers->slug ) ||
-					( bp_is_current_component( 'activity' ) && bp_is_current_action( $this->following->slug ) )
-				) {
-					require $this->path . '/users/screens.php';
-				}
-			}, $priority );
-		}
-
-		// blogs module - on multisite and BP 2.0+ only.
-		if ( function_exists( 'bp_add_option' ) && bp_is_active( 'blogs' ) && is_multisite() && bp_is_network_activated() && apply_filters( 'bp_follow_enable_blogs', true ) ) {
-			require( $this->path . '/modules/blogs.php' );
-		}
-
-		// activity module - BP 2.2+ only.
-		if ( class_exists( 'BP_Activity_Query' ) && bp_is_active( 'activity' ) ) {
-			require( $this->path . '/modules/activity.php' );
-		}
-
-		// updater.
-		if ( defined( 'WP_NETWORK_ADMIN' ) ) {
-			require( $this->path . '/bp-follow-updater.php' );
-		}
 	}
 
 	/**
 	 * Setup globals.
 	 *
-	 * @since 1.3.0 Add 'global_cachegroups' property
+	 * @global obj $bp BuddyPress instance
 	 */
 	public function setup_globals( $args = array() ) {
+		global $bp;
 
-		// Constants.
-		if ( ! defined( 'BP_FOLLOWERS_SLUG' ) ) {
+		if ( ! defined( 'BP_FOLLOWERS_SLUG' ) )
 			define( 'BP_FOLLOWERS_SLUG', 'followers' );
-		}
 
-		if ( ! defined( 'BP_FOLLOWING_SLUG' ) ) {
+		if ( ! defined( 'BP_FOLLOWING_SLUG' ) )
 			define( 'BP_FOLLOWING_SLUG', 'following' );
+
+		// Set up the $globals array
+		$globals = array(
+			'notification_callback' => 'bp_follow_format_notifications',
+			'global_tables'         => array(
+				'table_name' => $bp->table_prefix . 'bp_follow',
+			)
+		);
+
+		// Let BP_Component::setup_globals() do its work.
+		parent::setup_globals( $globals );
+
+		// register other globals since BP isn't really flexible enough to add it
+		// in the setup_globals() method
+		//
+		// would rather do away with this, but keeping it for backpat
+		$bp->follow->followers = new stdClass;
+		$bp->follow->following = new stdClass;
+		$bp->follow->followers->slug = constant( 'BP_FOLLOWERS_SLUG' );
+		$bp->follow->following->slug = constant( 'BP_FOLLOWING_SLUG' );
+
+		// locally cache total count values for logged-in user
+		if ( is_user_logged_in() ) {
+			$bp->loggedin_user->total_follow_counts = bp_follow_total_follow_counts( array(
+				'user_id' => bp_loggedin_user_id()
+			) );
 		}
 
-		$bp = $GLOBALS['bp'];
+		// locally cache total count values for displayed user
+		if ( bp_is_user() && ( bp_loggedin_user_id() != bp_displayed_user_id() ) ) {
+			$bp->displayed_user->total_follow_counts = bp_follow_total_follow_counts( array(
+				'user_id' => bp_displayed_user_id()
+			) );
+		}
 
-		/**
-		 * Register other globals here since BP isn't flexible enough to add them in
-		 * the parent::setup_globals() method
-		 */
-		// global cachegroups.
-		$this->global_cachegroups = array( 'bp_follow_data' );
-
-		// slugs; would rather do away with this, but keeping it for backpat.
-		$this->followers = new stdClass();
-		$this->following = new stdClass();
-		$this->followers->slug = constant( 'BP_FOLLOWERS_SLUG' );
-		$this->following->slug = constant( 'BP_FOLLOWING_SLUG' );
-
-		/** Core setup globals ************************************************/
-
-		parent::setup_globals( array(
-			'notification_callback' => 'bp_follow_format_notifications',
-			'global_tables' => array(
-				'table_name' => $bp->table_prefix . 'bp_follow',
-			),
-		) );
 	}
 
 	/**
 	 * Setup hooks.
 	 */
 	public function setup_hooks() {
-		// register global cachegroups.
-		add_action( 'bp_init', array( $this, 'register_global_cachegroups' ), 5 );
-
-		// register notification settings.
-		add_action( 'bp_init', array( $this, 'register_notification_settings' ) );
-
-		// javascript hook.
+		// javascript hook
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 	}
 
 	/**
-	 * Register global cachegroups.
-	 *
-	 * Replacement for {@link BP_Component::setup_cache_groups()}, made available in BP
-	 * 2.2.0.  That class method runs too early.  This is an alternative way to
-	 * register global cachegroups.
-	 *
-	 * @since 1.3.0
-	 *
-	 * @see BP_Follow_Component::setup_globals()
+	 * Setup profile / BuddyBar navigation
 	 */
-	public function register_global_cachegroups() {
-		wp_cache_add_global_groups( (array) $this->global_cachegroups );
+	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
+		global $bp;
+
+		// Need to change the user ID, so if we're not on a member page, $counts variable is still calculated
+		$user_id = bp_is_user() ? bp_displayed_user_id() : bp_loggedin_user_id();
+		$counts  = bp_follow_total_follow_counts( array( 'user_id' => $user_id ) );
+
+		// BuddyBar compatibility
+		$domain = bp_displayed_user_domain() ? bp_displayed_user_domain() : bp_loggedin_user_domain();
+
+		/** FOLLOWING NAV ************************************************/
+
+		bp_core_new_nav_item( array(
+			'name'                => sprintf( __( 'Added by Me <span>%d</span>', 'bp-follow' ), $counts['following'] ),
+			'slug'                => $bp->follow->following->slug,
+			'position'            => $this->params['adminbar_myaccount_order'],
+			'screen_function'     => 'bp_follow_screen_following',
+			'default_subnav_slug' => 'following',
+			'item_css_id'         => 'members-following'
+		) );
+
+		/** FOLLOWERS NAV ************************************************/
+
+		bp_core_new_nav_item( array(
+			'name'                => sprintf( __( 'Added By <span>%d</span>', 'bp-follow' ), $counts['followers'] ),
+			'slug'                => $bp->follow->followers->slug,
+			'position'            => apply_filters( 'bp_follow_followers_nav_position', 62 ),
+			'screen_function'     => 'bp_follow_screen_followers',
+			'default_subnav_slug' => 'followers',
+			'item_css_id'         => 'members-followers'
+		) );
+
+		/** ACTIVITY SUBNAV **********************************************/
+
+		// Add activity sub nav item
+		if ( bp_is_active( 'activity' ) && apply_filters( 'bp_follow_show_activity_subnav', true ) ) {
+
+			bp_core_new_subnav_item( array(
+				'name'            => _x( 'Added Accounts', 'Activity subnav tab', 'bp-follow' ),
+				'slug'            => constant( 'BP_FOLLOWING_SLUG' ),
+				'parent_url'      => trailingslashit( $domain . bp_get_activity_slug() ),
+				'parent_slug'     => bp_get_activity_slug(),
+				'screen_function' => 'bp_follow_screen_activity_following',
+				'position'        => 21,
+				'item_css_id'     => 'activity-following'
+			) );
+		}
+
+		// BuddyBar compatibility
+		add_action( 'bp_adminbar_menus', array( $this, 'group_buddybar_items' ), 3 );
+
+		do_action( 'bp_follow_setup_nav' );
+
 	}
 
 	/**
-	 * Registers notification settings block.
+	 * Set up WP Toolbar / Admin Bar.
 	 *
-	 * Only shows if there are follow modules with notification settings enabled.
-	 *
-	 * @since 1.3.0
+	 * @global obj $bp BuddyPress instance
 	 */
-	public function register_notification_settings() {
-		if ( has_action( 'bp_follow_screen_notification_settings' ) ) {
-			add_action( 'bp_notification_settings', 'bp_follow_notification_settings_content' );
+	public function setup_admin_bar( $wp_admin_nav = array() ) {
+
+		// Menus for logged in user
+		if ( is_user_logged_in() ) {
+			global $bp;
+
+			// "Follow" parent nav menu
+			$wp_admin_nav[] = array(
+				'parent' => $bp->my_account_menu_id,
+				'id'     => 'my-account-' . $this->id,
+				'title'  => _x( 'Added By', 'Adminbar main nav', 'bp-follow' ),
+				'href'   => trailingslashit( bp_loggedin_user_domain() . $bp->follow->following->slug )
+			);
+
+			// "Following" subnav item
+			$wp_admin_nav[] = array(
+				'parent' => 'my-account-' . $this->id,
+				'id'     => 'my-account-' . $this->id . '-following',
+				'title'  => _x( 'Added by Me', 'Adminbar follow subnav', 'bp-follow' ),
+				'href'   => trailingslashit( bp_loggedin_user_domain() . $bp->follow->following->slug )
+			);
+
+			// "Followers" subnav item
+			$wp_admin_nav[] = array(
+				'parent' => 'my-account-' . $this->id,
+				'id'     => 'my-account-' . $this->id . '-followers',
+				'title'  => _x( 'Added By', 'Adminbar follow subnav', 'bp-follow' ),
+				'href'   => trailingslashit( bp_loggedin_user_domain() . $bp->follow->followers->slug )
+			);
+
+			// "Activity > Following" subnav item
+			if ( bp_is_active( 'activity' ) && apply_filters( 'bp_follow_show_activity_subnav', true ) ) {
+				$wp_admin_nav[] = array(
+					'parent' => 'my-account-activity',
+					'id'     => 'my-account-activity-following',
+					'title'  => _x( 'Added by Me', 'Adminbar activity subnav', 'bp-follow' ),
+					'href'   => trailingslashit( bp_loggedin_user_domain() . bp_get_activity_slug() . '/' . $bp->follow->following->slug )
+				);
+			}
+
 		}
+
+		parent::setup_admin_bar( apply_filters( 'bp_follow_toolbar', $wp_admin_nav ) );
+	}
+
+	/**
+	 * Groups follow nav items together in the BuddyBar.
+	 *
+	 * For BP Follow, we use separate nav items for the "Following" and
+	 * "Followers" pages, but for the BuddyBar, we want to group them together.
+	 *
+	 * Because of the way BuddyPress renders both the BuddyBar and profile nav
+	 * with the same code, to alter just the BuddyBar, you need to resort to
+	 * hacking the $bp global later on.
+	 *
+	 * This will probably break in future versions of BP, when that happens we'll
+	 * remove this entirely.
+	 *
+	 * If the WP Toolbar is in use, this method is skipped.
+	 *
+	 * @global object $bp BuddyPress global settings
+	 * @uses bp_follow_total_follow_counts() Get the following/followers counts for a user.
+	 */
+	public function group_buddybar_items() {
+		// don't do this if we're using the WP Admin Bar / Toolbar
+		if ( defined( 'BP_USE_WP_ADMIN_BAR' ) && BP_USE_WP_ADMIN_BAR )
+			return;
+
+		if ( ! bp_loggedin_user_id() )
+			return;
+
+		global $bp;
+
+		// get follow nav positions
+		$following_position = $this->params['adminbar_myaccount_order'];
+		$followers_position = apply_filters( 'bp_follow_followers_nav_position', 62 );
+
+		// clobberin' time!
+		unset( $bp->bp_nav[$following_position] );
+		unset( $bp->bp_nav[$followers_position] );
+		unset( $bp->bp_options_nav['following'] );
+		unset( $bp->bp_options_nav['followers'] );
+
+		// Add the "Follow" nav menu
+		$bp->bp_nav[$following_position] = array(
+			'name'                    => _x( 'Added By', 'Adminbar main nav', 'bp-follow' ),
+			'link'                    => trailingslashit( bp_loggedin_user_domain() . $bp->follow->following->slug ),
+			'slug'                    => 'follow',
+			'css_id'                  => 'follow',
+			'position'                => $following_position,
+			'show_for_displayed_user' => 1,
+			'screen_function'         => 'bp_follow_screen_followers'
+		);
+
+		// "Following" subnav item
+		$bp->bp_options_nav['follow'][10] = array(
+			'name'            => _x( 'Added by Me', 'Adminbar follow subnav', 'bp-follow' ),
+			'link'            => trailingslashit( bp_loggedin_user_domain() . $bp->follow->following->slug ),
+			'slug'            => $bp->follow->following->slug,
+			'css_id'          => 'following',
+			'position'        => 10,
+			'user_has_access' => 1,
+			'screen_function' => 'bp_follow_screen_followers'
+		);
+
+		// "Followers" subnav item
+		$bp->bp_options_nav['follow'][20] = array(
+			'name'            => _x( 'Added By', 'Adminbar follow subnav', 'bp-follow' ),
+			'link'            => trailingslashit( bp_loggedin_user_domain() . $bp->follow->followers->slug ),
+			'slug'            => $bp->follow->followers->slug,
+			'css_id'          => 'followers',
+			'position'        => 20,
+			'user_has_access' => 1,
+			'screen_function' => 'bp_follow_screen_followers'
+		);
+
+		// Resort the nav items to account for the late change made above
+		ksort( $bp->bp_nav );
 	}
 
 	/**
@@ -225,18 +319,19 @@ class BP_Follow_Component extends BP_Component {
 	 * The JS is used to add AJAX functionality when clicking on the follow button.
 	 */
 	public function enqueue_scripts() {
-		// Do not enqueue if no user is logged in.
+		// Do not enqueue if no user is logged in
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
-		// Do not enqueue on multisite if not on multiblog and not on root blog.
-		if ( ! bp_is_multiblog_mode() && ! bp_is_root_blog() ) {
+		// Do not enqueue on multisite if not on multiblog and not on root blog
+		if( ! bp_is_multiblog_mode() && ! bp_is_root_blog() ) {
 			return;
 		}
 
-		wp_enqueue_script( 'bp-follow-js', constant( 'BP_FOLLOW_URL' ) . '_inc/bp-follow.js', array( 'jquery' ), strtotime( $this->revision_date ) );
+		wp_enqueue_script( 'bp-follow-js', constant( 'BP_FOLLOW_URL' ) . '_inc/bp-follow.js', array( 'jquery' ) );
 	}
+
 }
 
 /**
@@ -247,18 +342,8 @@ class BP_Follow_Component extends BP_Component {
  * @since 1.2
  */
 function bp_follow_setup_component() {
-	$bp = $GLOBALS['bp'];
+	global $bp;
 
-	$bp->follow = new BP_Follow_Component();
-
-	// Load up the updater if we're in the admin area
-	//
-	// Checking the WP_NETWORK_ADMIN define is a more, reliable check to determine
-	// if we're in the admin area.
-	if ( defined( 'WP_NETWORK_ADMIN' ) ) {
-		$bp->follow->updater = new BP_Follow_Updater();
-	}
-
-	do_action( 'bp_follow_loaded' );
+	$bp->follow = new BP_Follow_Component;
 }
 add_action( 'bp_loaded', 'bp_follow_setup_component' );
