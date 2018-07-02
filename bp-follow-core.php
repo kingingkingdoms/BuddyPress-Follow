@@ -68,9 +68,10 @@ class BP_Follow_Component extends BP_Component {
 		require( $this->path . '/bp-follow-hooks.php' );
 		require( $this->path . '/bp-follow-templatetags.php' );
 		require( $this->path . '/bp-follow-notifications.php' );
-		require( $this->path . '/bp-following-widget.php' );
-		require( $this->path . '/bp-followers-widget.php' );
-		require( $this->path . '/bp-total-followers-widget.php' );
+		require( $this->path . '/bp-follow-following-widget.php' );
+		require( $this->path . '/bp-follow-followers-widget.php' );
+		require( $this->path . '/bp-follow-total-followers-widget.php' );
+		require( $this->path . '/bp-follow-button-widget.php' );
 
 	}
 
