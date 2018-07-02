@@ -83,7 +83,7 @@ class BP_Following_Widget extends WP_Widget {
 		$member_types = bp_get_member_types( array(), 'objects' );
 		$member_type = $instance['member_type'];
 		$instance = wp_parse_args( (array) $instance, array(
-			'title'     => __( "Brand Accounts I've Added to My Feeds", 'buddypress-followers' ),
+			'title'     => __( "", 'buddypress-followers' ),
 			'max_users' => 18,
 			'member_type' => ''
 		) );
