@@ -1,8 +1,21 @@
 <?php
-class Total_Follower_Widget extends WP_Widget {
+/**
+ * BP Total Followers Widget
+ *
+ * @package BP-Follow
+ * @subpackage Widgets
+ */
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+/**
+ * Add a "BuddyPress Total Followers Widget" widget for the displayed user
+ *
+ * @subpackage Widgets
+ */
+class Total_Followers_Widget extends WP_Widget {
 	public function __construct() {
-		$widget_ops = array('classname' => 'Total_Follower_Widget', 'description' => 'Display the total number of followers a displayed user has as a widget.' );
-		$this->WP_Widget('Total_Follower_Widget', 'BuddyPress Total Followers Count 2', $widget_ops);
+		$widget_ops = array('classname' => 'Total_Followers_Widget', 'description' => 'Display the total number of followers a displayed user has as a widget.' );
+		$this->WP_Widget('Total_Followers_Widget', 'BuddyPress Total Followers', $widget_ops);
 	}
 	function widget($args, $instance) {
 		//PART 1: Extracting the arguments + getting the values
@@ -27,8 +40,8 @@ class Total_Follower_Widget extends WP_Widget {
 			}
 		}
 		$title = empty( $instance['title'] ) ? ' ' : apply_filters('widget_title', $instance['title']);
-		$subject_single = __( 'person' , 'Total_Follower_Widget' );
-		$subject_plural = __( 'people' , 'Total_Follower_Widget' );
+		$subject_single = __( 'person' , 'Total_Followers_Widget' );
+		$subject_plural = __( 'people' , 'Total_Followers_Widget' );
 		$number = bpfw_format_count( $count );
 		echo (isset($before_widget)?$before_widget:'');
 		
@@ -71,4 +84,4 @@ class Total_Follower_Widget extends WP_Widget {
 		return $instance;
 	}
 }
-add_action( 'widgets_init', create_function('', 'return register_widget("Total_Follower_Widget");') );
+add_action( 'widgets_init', create_function('', 'return register_widget("Total_Followers_Widget");') );
