@@ -87,7 +87,7 @@ class BP_Follow_Component extends BP_Component {
 			define( 'BP_FOLLOWERS_SLUG', 'added-by' );
 
 		if ( ! defined( 'BP_FOLLOWING_SLUG' ) )
-			define( 'BP_FOLLOWING_SLUG', 'added-by-me' );
+			define( 'BP_FOLLOWING_SLUG', 'added' );
 
 		// Set up the $globals array
 		$globals = array(
