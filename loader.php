@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Millionaire's Digest Follow
+Plugin Name: Millionaire's Digest 
 Description: Allow users to follow and unfollow each other on BuddyPress
 Version: 1.0.0
 Author: K&L (Founder of the Millionaire's Digest)
@@ -9,6 +9,12 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: bp-follow
 Domain Path: /languages
+
+Plugin Name: Millionaire's Digest Follow  
+Description: Allow users to add and unadd users and accounts that their passionate about.
+Version: 1.0.0
+Author: K&L (Founder of the Millionaire's Digest)
+Author URI: https://millionairedigest.com/
 */
 
 /**
