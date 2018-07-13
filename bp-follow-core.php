@@ -84,10 +84,10 @@ class BP_Follow_Component extends BP_Component {
 		global $bp;
 
 		if ( ! defined( 'BP_FOLLOWERS_SLUG' ) )
-			define( 'BP_FOLLOWERS_SLUG', 'followers' );
+			define( 'BP_FOLLOWERS_SLUG', 'added-by' );
 
 		if ( ! defined( 'BP_FOLLOWING_SLUG' ) )
-			define( 'BP_FOLLOWING_SLUG', 'following' );
+			define( 'BP_FOLLOWING_SLUG', 'added-by-me' );
 
 		// Set up the $globals array
 		$globals = array(
