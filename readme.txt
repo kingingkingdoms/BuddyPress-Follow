@@ -1,4 +1,4 @@
-=== BuddyPress Follow ===
+=== Millionaire's Digest Follow ===
 Contributors: K&L
 Tags: buddypress, following, followers, connections
 Requires at least: WP 3.2 / BP 1.5
