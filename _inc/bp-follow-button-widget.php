@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
 			return false;
 		}
 		//Show the widget if the author of the currently displayed post has the member type Brand, Famous Person, Organization, Millionaire's Digest, or Government
-		if ( ! bp_has_member_type( $user_id, 'brand' ) && ( ! bp_has_member_type( $user_id, 'famous-person' ) && ( ! bp_has_member_type( $user_id, 'organization' ) && ( ! bp_has_member_type( $user_id, 'millionaires-digest' ) && ( ! bp_has_member_type( $user_id, 'government' ) ) ) ) ) ) {
+		if ( ! bp_has_member_type( $user_id, 'brand' ) && ( ! bp_has_member_type( $user_id, 'famous_person' ) && ( ! bp_has_member_type( $user_id, 'organization' ) && ( ! bp_has_member_type( $user_id, 'millionaire_digest' ) && ( ! bp_has_member_type( $user_id, 'millionaires_digest' ) && ( ! bp_has_member_type( $user_id, 'government' ) ) ) ) ) ) ) {
 			return;
 		}
 		$title = apply_filters( 'widget_title', $instance['title'] );
